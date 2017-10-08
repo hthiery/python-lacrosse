@@ -27,10 +27,10 @@ _LOGGER = logging.getLogger(__name__)
 DEFAULT_DEVICE = '/dev/ttyUSB0'
 
 def test_cb_humidity(sensor):
-    print sensor.humidity
+    print(sensor.humidity)
 
 def test_cb_temperature(sensor):
-    print sensor.temperature
+    print(sensor.temperature)
 
 def main(args=None):
     parser = argparse.ArgumentParser('LaCrosse sensor CLI tool.')

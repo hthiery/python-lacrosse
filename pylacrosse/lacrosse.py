@@ -92,16 +92,3 @@ class LaCrosseSensor(object):
     def __repr__(self):
         return "id=%d t=%f h=%d nbat=%d" % \
             (self.sensorid, self.temperature, self.humidity, self.new_battery)
-
-
-def test_cb(sensor):
-    print sensor
-
-if __name__ == '__main__':
-
-    l = LaCrosse('/dev/ttyUSB0', 56700)
-    l.open()
-    l.registry_callback(0, test_cb)
-
-    while True:
-        time.sleep(1)
