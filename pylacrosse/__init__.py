@@ -1,4 +1,3 @@
-# Pure python VXI-11 client
 # Copyright (c) 2017 Heiko Thiery
 #
 # This library is free software; you can redistribute it and/or
