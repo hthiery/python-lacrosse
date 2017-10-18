@@ -27,6 +27,7 @@ class LaCrosse(object):
 
     sensors = {}
     _registry = {}
+    _callback = None
 
     def __init__(self, port, baud, timeout=2):
         self._port = port
@@ -54,10 +55,13 @@ class LaCrosse(object):
         """Background refreshing thread."""
 
         while not self._stopevent.isSet():
-            line = self._serial.readline()
+            line = self._serial.readline().decode('utf-8')
             if LaCrosseSensor.re_reading.match(line):
                 sensor = LaCrosseSensor(line)
                 self.sensors[sensor.sensorid] = sensor
+
+                if self._callback:
+                    self._callback(sensor)
 
                 if sensor.sensorid in self._registry:
                     for cb in self._registry[sensor.sensorid]:
@@ -67,6 +71,9 @@ class LaCrosse(object):
         if sensorid not in self._registry:
             self._registry[sensorid] = list()
         self._registry[sensorid].append(cb)
+
+    def register_all(self, cb):
+        self._callback = cb
 
 
 class LaCrosseSensor(object):

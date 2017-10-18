@@ -31,6 +31,9 @@ def test_cb_humidity(sensor):
 def test_cb_temperature(sensor):
     print(sensor.temperature)
 
+def test_cb_sensor(sensor):
+    print(sensor)
+
 def main(args=None):
     parser = argparse.ArgumentParser('LaCrosse sensor CLI tool.')
     parser.add_argument('-v', action='store_true', dest='verbose',
@@ -47,8 +50,9 @@ def main(args=None):
     try:
         lacrosse = pylacrosse.LaCrosse(args.device, 56700)
         lacrosse.open()
-        lacrosse.register_callback(0, test_cb_humidity)
-        lacrosse.register_callback(0, test_cb_temperature)
+        lacrosse.register_all(test_cb_sensor)
+        #lacrosse.register_callback(0, test_cb_humidity)
+        #lacrosse.register_callback(0, test_cb_temperature)
 
         while True:
             time.sleep(1)
