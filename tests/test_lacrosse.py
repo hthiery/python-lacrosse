@@ -42,7 +42,7 @@ class TestLacrosse(object):
         mock_cb_1 = MagicMock(return_value=None)
         mock_cb_2 = MagicMock(return_value=None)
 
-        l = LaCrosse('/dev/ttyUSB0', 115200)
+        l = LaCrosse('/dev/ttyTEST', 115200)
         l._serial.readline = mock_readline
         l.register_callback(1, mock_cb_1)
         l.register_callback(2, mock_cb_2)
