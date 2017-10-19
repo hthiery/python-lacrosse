@@ -28,21 +28,21 @@ class LaCrosse(object):
     sensors = {}
     _registry = {}
     _callback = None
+    _serial = None
 
     def __init__(self, port, baud, timeout=2):
         self._port = port
         self._baud = baud
         self._timeout = timeout
+        self._serial = Serial(self._port, self._baud, timeout=self._timeout)
 
     def open(self):
-        self._serial = Serial(self._port, self._baud, timeout=self._timeout)
         self._serial.flushInput()
         self._serial.flushOutput()
         self._start_worker()
 
     def close(self):
-        self._stopevent.set()
-        self._thread.join()
+        self._stop_worker()
         self._serial.close()
 
     def _start_worker(self):
@@ -51,11 +51,15 @@ class LaCrosse(object):
         self._thread.daemon = True
         self._thread.start()
 
+    def _stop_worker(self):
+        self._stopevent.set()
+        self._thread.join()
+
     def _refresh(self):
         """Background refreshing thread."""
 
         while not self._stopevent.isSet():
-            line = self._serial.readline().decode('utf-8')
+            line = self._serial.readline()
             if LaCrosseSensor.re_reading.match(line):
                 sensor = LaCrosseSensor(line)
                 self.sensors[sensor.sensorid] = sensor
