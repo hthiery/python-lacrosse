@@ -17,7 +17,7 @@ This libray works with the `Jeelink`_ USB RF adapter and the arduino `sketch`_ h
 
 .. |BuildStatus| image:: https://travis-ci.org/hthiery/python-lacrosse.png?branch=master
                  :target: https://travis-ci.org/hthiery/python-lacrosse
-.. |CodeClimate| image:: https://codeclimate.com/github/hthiery/python-lacrosse/badges/gpa.svg
-                 :target: http://codeclimate.com/github/hthiery/python-lacrosse
+.. |CodeClimate| image:: https://api.codeclimate.com/v1/badges/fc83491ef0ae81080882/test_coverage
+                 :target: https://codeclimate.com/github/hthiery/python-lacrosse/test_coverage
 .. |Coveralls|   image:: https://coveralls.io/repos/github/hthiery/python-lacrosse/badge.svg?branch=master
                  :target: https://coveralls.io/github/hthiery/python-lacrosse?branch=master
