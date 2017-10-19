@@ -29,14 +29,20 @@ class LaCrosse(object):
     _registry = {}
     _callback = None
     _serial = None
+    _stopevent = None
+    _thread= None
 
     def __init__(self, port, baud, timeout=2):
         self._port = port
         self._baud = baud
         self._timeout = timeout
-        self._serial = Serial(self._port, self._baud, timeout=self._timeout)
+        self._serial = Serial()
 
     def open(self):
+        self._serial.port = self._port
+        self._serial.baudrate = self._baud
+        self._serial.timeout= self._timeout
+        self._serial.open()
         self._serial.flushInput()
         self._serial.flushOutput()
         self._start_worker()
@@ -52,8 +58,10 @@ class LaCrosse(object):
         self._thread.start()
 
     def _stop_worker(self):
-        self._stopevent.set()
-        self._thread.join()
+        if self._stopevent is not None:
+            self._stopevent.set()
+        if self._thread is not None:
+            self._thread.join()
 
     def _refresh(self):
         """Background refreshing thread."""
