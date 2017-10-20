@@ -25,9 +25,9 @@ class TestLacrosse(object):
             if not hasattr(side_effect_fct, "counter"):
                 side_effect_fct.counter = 0
             vals = [
-                u'OK 9 1 1 4 150 106',
-                u'OK 9 2 1 4 150 106',
-                u'OK 9 2 1 4 150 106',
+                'OK 9 1 1 4 150 106',
+                'OK 9 2 1 4 150 106',
+                'OK 9 2 1 4 150 106',
             ]
 
             if side_effect_fct.counter >= len(vals):

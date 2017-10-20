@@ -15,6 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+from __future__ import unicode_literals
 import logging
 import re
 from serial import Serial
@@ -67,25 +68,26 @@ class LaCrosse(object):
         """Background refreshing thread."""
 
         while not self._stopevent.isSet():
-            line = self._serial.readline()
+            line = self._serial.readline().encode().decode('utf-8')
             if LaCrosseSensor.re_reading.match(line):
                 sensor = LaCrosseSensor(line)
                 self.sensors[sensor.sensorid] = sensor
 
                 if self._callback:
-                    self._callback(sensor)
+                    self._callback(sensor, self._callback_data)
 
                 if sensor.sensorid in self._registry:
                     for cb in self._registry[sensor.sensorid]:
-                        cb(sensor)
+                        cb[0](sensor, cb[1])
 
-    def register_callback(self, sensorid, cb):
+    def register_callback(self, sensorid, cb, user_data=None):
         if sensorid not in self._registry:
             self._registry[sensorid] = list()
-        self._registry[sensorid].append(cb)
+        self._registry[sensorid].append((cb, user_data))
 
-    def register_all(self, cb):
+    def register_all(self, cb, user_data=None):
         self._callback = cb
+        self._callback_data = user_data
 
 
 class LaCrosseSensor(object):

@@ -16,23 +16,38 @@
 # USA
 
 import argparse
+import codecs
 import logging
+import os
 import time
+try:
+    from ConfigParser import (SafeConfigParser, NoOptionError)
+except ImportError:
+    from configparser import (SafeConfigParser, NoOptionError)
 
 import pylacrosse
 
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_DEVICE = '/dev/ttyUSB0'
+def get_known_sensor_name(sensor_id, config):
+    if str(sensor_id) in config.sections():
+        try:
+            name = config.get(str(sensor_id), 'name')
+            return name
+        except NoOptionError as e:
+            return 'unknown'
+    return 'unknown'
 
-def test_cb_humidity(sensor):
-    print(sensor.humidity)
 
-def test_cb_temperature(sensor):
-    print(sensor.temperature)
+def scan_callback(sensor, config):
+    name = get_known_sensor_name(sensor.sensorid, config)
+    print('%s name=%s' % (sensor, name))
 
-def test_cb_sensor(sensor):
-    print(sensor)
+def scan(lacrosse, config, args):
+    lacrosse.register_all(scan_callback, user_data=config)
+    while True:
+        time.sleep(1)
 
 def main(args=None):
     parser = argparse.ArgumentParser('LaCrosse sensor CLI tool.')
@@ -41,25 +56,32 @@ def main(args=None):
     parser.add_argument('-d', '--device', type=str, dest='device',
             default=DEFAULT_DEVICE)
 
+    _sub = parser.add_subparsers(title='Commands')
+
+    # list all devices
+    subparser = _sub.add_parser('scan',
+            help='Show all received sensors')
+    subparser.set_defaults(func=scan)
+
     args = parser.parse_args(args)
 
+    logging.basicConfig()
     if args.verbose:
         _LOGGER.setLevel(logging.DEBUG)
 
+
     lacrosse = None
     try:
+        config = SafeConfigParser()
+        config.readfp(codecs.open(os.path.expanduser('~/.lacrosse/known_sensors.ini'),
+        'r', 'UTF-8'))
         lacrosse = pylacrosse.LaCrosse(args.device, 56700)
         lacrosse.open()
-        lacrosse.register_all(test_cb_sensor)
-        #lacrosse.register_callback(0, test_cb_humidity)
-        #lacrosse.register_callback(0, test_cb_temperature)
+        args.func(lacrosse, config, args)
 
-        while True:
-            time.sleep(1)
     finally:
         if lacrosse is not None:
             lacrosse.close()
-
 
 if __name__ == '__main__':
     main()
