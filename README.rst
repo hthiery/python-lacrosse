@@ -1,7 +1,7 @@
 Pure Python Jeelink LaCrosse Library
 ====================================
 
-|BuildStatus| |Coveralls| |CodeClimate|
+|BuildStatus| |PypiVersion| |Coveralls| |CodeClimate|
 
 
 
@@ -17,6 +17,8 @@ This libray works with the `Jeelink`_ USB RF adapter and the arduino `sketch`_ h
 
 .. |BuildStatus| image:: https://travis-ci.org/hthiery/python-lacrosse.png?branch=master
                  :target: https://travis-ci.org/hthiery/python-lacrosse
+.. |PyPiVersion| image:: https://badge.fury.io/py/pylacrosse.svg
+                 :target: http://badge.fury.io/py/pylacrosse
 .. |CodeClimate| image:: https://api.codeclimate.com/v1/badges/fc83491ef0ae81080882/maintainability
 				 :target: https://codeclimate.com/github/hthiery/python-lacrosse/maintainability
 				 :alt: Maintainability
