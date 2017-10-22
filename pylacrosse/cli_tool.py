@@ -31,12 +31,14 @@ _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_DEVICE = '/dev/ttyUSB0'
 def get_known_sensor_name(sensor_id, config):
-    if str(sensor_id) in config.sections():
-        try:
+    try:
+        if str(sensor_id) in config.sections():
             name = config.get(str(sensor_id), 'name')
             return name
-        except NoOptionError as e:
-            return 'unknown'
+    except NoOptionError as e:
+        return 'unknown'
+    except AttributeError:
+        return 'unknown'
     return 'unknown'
 
 
@@ -69,12 +71,15 @@ def main(args=None):
     if args.verbose:
         _LOGGER.setLevel(logging.DEBUG)
 
+    try:
+        config = SafeConfigParser()
+        config.readfp(codecs.open(os.path.expanduser(
+                '~/.lacrosse/known_sensors.ini'), 'r', 'UTF-8'))
+    except IOError:
+        config = None
 
     lacrosse = None
     try:
-        config = SafeConfigParser()
-        config.readfp(codecs.open(os.path.expanduser('~/.lacrosse/known_sensors.ini'),
-        'r', 'UTF-8'))
         lacrosse = pylacrosse.LaCrosse(args.device, 56700)
         lacrosse.open()
         args.func(lacrosse, config, args)
