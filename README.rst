@@ -22,26 +22,29 @@ The LaCrosse sensor generates the ID every time the battery is changed.
 
 Use the clie tool pylacrosse to find your device:
 
-	pylacrosse -d /dev/ttyUSB0 scan
-	id=40 t=16.000000 h=69 nbat=0 name=unknown
-	id=16 t=18.700000 h=60 nbat=0 name=unknown
-	id=0 t=17.400000 h=65 nbat=0 name=unknown
+.. code :: shell
+    pylacrosse -d /dev/ttyUSB0 scan
+    id=40 t=16.000000 h=69 nbat=0 name=unknown
+    id=16 t=18.700000 h=60 nbat=0 name=unknown
+    id=0 t=17.400000 h=65 nbat=0 name=unknown
 
 You can generate a file with know devices at ~/.lacrosse/known_devices.ini
 
-	[0]
-	name = Kitchen
-	[16]
-	name = Livingroom
-	[40]
-	name = Bedroom
+.. code :: shell
+    [0]
+    name = Kitchen
+    [16]
+    name = Livingroom
+    [40]
+    name = Bedroom
 
 then the toll will print the defined names
 
-	pylacrosse -d /dev/ttyUSB0 scan
-	id=40 t=16.000000 h=69 nbat=0 name=Bedroom
-	id=16 t=18.700000 h=60 nbat=0 name=Livingroom
-	id=0 t=17.400000 h=65 nbat=0 name=Kitchen
+.. code :: shell
+    pylacrosse -d /dev/ttyUSB0 scan
+    id=40 t=16.000000 h=69 nbat=0 name=Bedroom
+    id=16 t=18.700000 h=60 nbat=0 name=Livingroom
+    id=0 t=17.400000 h=65 nbat=0 name=Kitchen
 
 
 .. _Jeelink: https://www.digitalsmarties.net/products/jeelink
