@@ -40,7 +40,7 @@ You can generate a file with know devices at ~/.lacrosse/known_devices.ini
     [40]
     name = Bedroom
 
-then the toll will print the defined names
+then the tool will print the defined names
 
 .. code :: shell
 
