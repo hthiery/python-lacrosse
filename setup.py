@@ -3,6 +3,7 @@
 
 from setuptools import setup, find_packages
 import os
+import re
 import subprocess
 
 name = 'pylacrosse'
