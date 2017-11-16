@@ -80,7 +80,7 @@ def main(args=None):
 
     lacrosse = None
     try:
-        lacrosse = pylacrosse.LaCrosse(args.device, 56700)
+        lacrosse = pylacrosse.LaCrosse(args.device, 57600)
         lacrosse.open()
         args.func(lacrosse, config, args)
 
