@@ -18,9 +18,8 @@
 from __future__ import unicode_literals
 import logging
 import re
-from serial import Serial
 import threading
-import time
+from serial import Serial
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,23 +48,27 @@ class LaCrosse(object):
     _callback = None
     _serial = None
     _stopevent = None
-    _thread= None
+    _thread = None
 
     def __init__(self, port, baud, timeout=2):
+        """Initialize the Lacrosse device."""
         self._port = port
         self._baud = baud
         self._timeout = timeout
         self._serial = Serial()
+        self._callback_data = None
 
     def open(self):
+        """Open the device."""
         self._serial.port = self._port
         self._serial.baudrate = self._baud
-        self._serial.timeout= self._timeout
+        self._serial.timeout = self._timeout
         self._serial.open()
         self._serial.flushInput()
         self._serial.flushOutput()
 
     def close(self):
+        """Close the device."""
         self._stop_worker()
         self._serial.close()
 
@@ -200,22 +203,25 @@ class LaCrosse(object):
                     self._callback(sensor, self._callback_data)
 
                 if sensor.sensorid in self._registry:
-                    for cb in self._registry[sensor.sensorid]:
-                        cb[0](sensor, cb[1])
+                    for cbs in self._registry[sensor.sensorid]:
+                        cbs[0](sensor, cbs[1])
 
-    def register_callback(self, sensorid, cb, user_data=None):
+    def register_callback(self, sensorid, callback, user_data=None):
+        """Register a callback for the specified sensor id."""
         if sensorid not in self._registry:
             self._registry[sensorid] = list()
-        self._registry[sensorid].append((cb, user_data))
+        self._registry[sensorid].append((callback, user_data))
 
-    def register_all(self, cb, user_data=None):
-        self._callback = cb
+    def register_all(self, callback, user_data=None):
+        """Register a callback for all sensors."""
+        self._callback = callback
         self._callback_data = user_data
 
 
 class LaCrosseSensor(object):
+    """The LaCrosse Sensor class."""
     # OK 9 248 1 4 150 106
-    re_reading = re.compile('OK (\d+) (\d+) (\d+) (\d+) (\d+) (\d+)')
+    re_reading = re.compile(r'OK (\d+) (\d+) (\d+) (\d+) (\d+) (\d+)')
 
     def __init__(self, line=None):
         if line:
