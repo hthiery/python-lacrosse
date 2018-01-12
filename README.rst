@@ -52,7 +52,7 @@ then the tool will print the defined names
 
 .. _Jeelink: https://www.digitalsmarties.net/products/jeelink
 .. _sketch: https://svn.fhem.de/trac/browser/trunk/fhem/contrib/arduino/36_LaCrosse-LaCrosseITPlusReader.zip
-.. _FHEM: https://fhem.de/commandref.html
+.. _FHEM: https://wiki.fhem.de/wiki/JeeLink
 
 .. |BuildStatus| image:: https://travis-ci.org/hthiery/python-lacrosse.png?branch=master
                  :target: https://travis-ci.org/hthiery/python-lacrosse
