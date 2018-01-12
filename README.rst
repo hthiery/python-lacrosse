@@ -10,7 +10,7 @@ Requirements
 
 This libray works with the `Jeelink`_ USB RF adapter and the arduino `sketch`_ hosted on the `FHEM`_ website.
 
-Testd Devices
+Tested Devices
 -------------
 * Technoline TX 29IT
 * Technoline TX 29DTH-IT
@@ -20,7 +20,7 @@ Command Line Tool
 
 The LaCrosse sensor generates the ID every time the battery is changed.
 
-Use the clie tool pylacrosse to find your device:
+Use the cli tool pylacrosse to find your device:
 
 .. code :: shell
 
