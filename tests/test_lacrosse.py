@@ -54,6 +54,23 @@ class TestLacrosse(object):
         eq_(mock_cb_1.call_count, 1)
         eq_(mock_cb_2.call_count, 2)
 
+    def test_get_info(self):
+        info = LaCrosse._parse_info('[LaCrosseITPlusReader.10.1s (RFM12B f:0 r:17241)]')
+        eq_(info['name'], 'LaCrosseITPlusReader')
+        eq_(info['version'], '10.1s')
+
+        info = LaCrosse._parse_info('[LaCrosseITPlusReader.10.1s (RFM12B f:0 r:17241)]')
+        eq_(info['rfm1name'], 'RFM12B')
+        eq_(info['rfm1frequency'], '0')
+        eq_(info['rfm1datarate'], '17241')
+
+        info = LaCrosse._parse_info('[LaCrosseITPlusReader.10.1s (RFM12B f:0 t:10~3)]')
+        eq_(info['rfm1name'], 'RFM12B')
+        eq_(info['rfm1frequency'], '0')
+        eq_(info['rfm1datarate'], None)
+        eq_(info['rfm1toggleinterval'], '10')
+        eq_(info['rfm1togglemask'], '3')
+
 class TestLaCrosseSensor(object):
 
     def test_init(self):
