@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-import nose
 import time
-import threading
 
 from nose.tools import eq_
 from mock import MagicMock
@@ -12,7 +10,7 @@ from pylacrosse import (LaCrosse, LaCrosseSensor)
 def static_vars(**kwargs):
     def decorate(func):
         for k in kwargs:
-             setattr(func, k, kwargs[k])
+            setattr(func, k, kwargs[k])
         return func
     return decorate
 
@@ -24,18 +22,18 @@ class TestLacrosse(object):
         def side_effect_fct():
             if not hasattr(side_effect_fct, "counter"):
                 side_effect_fct.counter = 0
-            vals = [
+            values = [
                 'OK 9 1 1 4 150 106',
                 'OK 9 2 1 4 150 106',
                 'OK 9 2 1 4 150 106',
             ]
 
-            if side_effect_fct.counter >= len(vals):
-                v = ""
+            if side_effect_fct.counter >= len(values):
+                value = ""
             else:
-                v = vals[side_effect_fct.counter]
+                value = values[side_effect_fct.counter]
             side_effect_fct.counter += 1
-            return v
+            return value
 
         mock_readline.side_effect = side_effect_fct
 
@@ -70,6 +68,7 @@ class TestLacrosse(object):
         eq_(info['rfm1datarate'], None)
         eq_(info['rfm1toggleinterval'], '10')
         eq_(info['rfm1togglemask'], '3')
+
 
 class TestLaCrosseSensor(object):
 
