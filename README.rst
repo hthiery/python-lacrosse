@@ -18,6 +18,38 @@ Tested Devices
 Command Line Tool
 -----------------
 
+.. code :: shell
+
+    pylacrosse -h
+    usage: LaCrosse sensor CLI tool. [-h] [-v] [-d DEVICE] [-f FREQUENCY_RFM1]
+                                     [-F FREQUENCY_RFM2] [-t TOGGLE_INTERVAL_RFM1]
+                                     [-T TOGGLE_INTERVAL_RFM2]
+                                     [-m TOGGLE_MASK_RFM1] [-M TOGGLE_MASK_RFM2]
+                                     [-r DATARATE_RFM1] [-R DATARATE_RFM2]
+                                     {scan,info,led} ...
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -v                    be more verbose
+      -d DEVICE, --device DEVICE
+      -f FREQUENCY_RFM1     set the frequency for RFM1
+      -F FREQUENCY_RFM2     set the frequency for RFM2
+      -t TOGGLE_INTERVAL_RFM1
+                            set the toggle interval for RFM1
+      -T TOGGLE_INTERVAL_RFM2
+                            set the toggle interval for RFM2
+      -m TOGGLE_MASK_RFM1   set the toggle mask for RFM1
+      -M TOGGLE_MASK_RFM2   set the toggle mask for RFM2
+      -r DATARATE_RFM1      set the datarate for RFM1
+      -R DATARATE_RFM2      set the datarate for RFM2
+
+    Commands:
+      {scan,info,led}
+        scan                Show all received sensors
+        info                Get configuration info
+        led                 Set traffic LED state
+
+
 The LaCrosse sensor generates the ID every time the battery is changed.
 
 Use the cli tool pylacrosse to find your device:
@@ -59,7 +91,7 @@ then the tool will print the defined names
 .. |PyPiVersion| image:: https://badge.fury.io/py/pylacrosse.svg
                  :target: http://badge.fury.io/py/pylacrosse
 .. |CodeClimate| image:: https://api.codeclimate.com/v1/badges/fc83491ef0ae81080882/maintainability
-				 :target: https://codeclimate.com/github/hthiery/python-lacrosse/maintainability
-				 :alt: Maintainability
+                 :target: https://codeclimate.com/github/hthiery/python-lacrosse/maintainability
+                 :alt: Maintainability
 .. |Coveralls|   image:: https://coveralls.io/repos/github/hthiery/python-lacrosse/badge.svg?branch=master
                  :target: https://coveralls.io/github/hthiery/python-lacrosse?branch=master
