@@ -2,7 +2,7 @@
 
 import time
 
-from nose.tools import eq_
+from nose.tools import eq_, raises
 from mock import MagicMock
 
 from pylacrosse import (LaCrosse, LaCrosseSensor)
@@ -69,6 +69,93 @@ class TestLacrosse(object):
         eq_(info['rfm1toggleinterval'], '10')
         eq_(info['rfm1togglemask'], '3')
 
+    def test_led_mode_state(self):
+        mock = MagicMock()
+
+        l = LaCrosse('/dev/ttyTEST', 115200)
+        l._serial.write = mock
+
+        l.led_mode_state(True)
+        l._serial.write.assert_called_with(b'1a')
+
+        l.led_mode_state(False)
+        l._serial.write.assert_called_with(b'0a')
+
+    def test_set_frequency(self):
+        mock = MagicMock()
+
+        l = LaCrosse('/dev/ttyTEST', 115200)
+        l._serial.write = mock
+
+        l.set_frequency(100)
+        l._serial.write.assert_called_with(b'100f')
+
+        l.set_frequency('200')
+        l._serial.write.assert_called_with(b'200f')
+
+        l.set_frequency(300, rfm=1)
+        l._serial.write.assert_called_with(b'300f')
+
+        l.set_frequency(400, rfm=2)
+        l._serial.write.assert_called_with(b'400F')
+
+    @raises(KeyError)
+    def test_set_frequency_invalid_rfm(self):
+        mock = MagicMock()
+
+        l = LaCrosse('/dev/ttyTEST', 115200)
+        l._serial.write = mock
+
+        l.set_frequency(500, rfm=3)
+        l._serial.write.assert_called_with(b'400f')
+
+    def test_set_datarate(self):
+        mock = MagicMock()
+
+        l = LaCrosse('/dev/ttyTEST', 115200)
+        l._serial.write = mock
+
+        l.set_datarate(0)
+        l._serial.write.assert_called_with(b'0r')
+        l.set_datarate('1')
+        l._serial.write.assert_called_with(b'1r')
+
+        l.set_datarate(0, rfm=1)
+        l._serial.write.assert_called_with(b'0r')
+        l.set_datarate(0, rfm=2)
+        l._serial.write.assert_called_with(b'0R')
+
+    def test_set_toggle_interval(self):
+        mock = MagicMock()
+
+        l = LaCrosse('/dev/ttyTEST', 115200)
+        l._serial.write = mock
+
+        l.set_toggle_interval(10)
+        l._serial.write.assert_called_with(b'10t')
+        l.set_toggle_interval('10')
+        l._serial.write.assert_called_with(b'10t')
+
+        l.set_toggle_interval(10, rfm=1)
+        l._serial.write.assert_called_with(b'10t')
+        l.set_toggle_interval(10, rfm=2)
+        l._serial.write.assert_called_with(b'10T')
+
+    def test_set_toggle_mask(self):
+        mock = MagicMock()
+
+        l = LaCrosse('/dev/ttyTEST', 115200)
+        l._serial.write = mock
+
+        l.set_toggle_mask(1)
+        l._serial.write.assert_called_with(b'1m')
+        l.set_toggle_mask('1')
+        l._serial.write.assert_called_with(b'1m')
+
+        l.set_toggle_mask(2, rfm=1)
+        l._serial.write.assert_called_with(b'2m')
+        l.set_toggle_mask(3, rfm=2)
+        l._serial.write.assert_called_with(b'3M')
 
 class TestLaCrosseSensor(object):
 
