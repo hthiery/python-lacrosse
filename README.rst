@@ -20,7 +20,7 @@ Command Line Tool
 
 .. code :: shell
 
-    pylacrosse -h
+    # pylacrosse -h
     usage: LaCrosse sensor CLI tool. [-h] [-v] [-d DEVICE] [-f FREQUENCY_RFM1]
                                      [-F FREQUENCY_RFM2] [-t TOGGLE_INTERVAL_RFM1]
                                      [-T TOGGLE_INTERVAL_RFM2]
@@ -56,7 +56,7 @@ Use the cli tool pylacrosse to find your device:
 
 .. code :: shell
 
-    pylacrosse -d /dev/ttyUSB0 scan
+    # pylacrosse -d /dev/ttyUSB0 scan
     id=40 t=16.000000 h=69 nbat=0 name=unknown
     id=16 t=18.700000 h=60 nbat=0 name=unknown
     id=0 t=17.400000 h=65 nbat=0 name=unknown
@@ -76,7 +76,7 @@ then the tool will print the defined names
 
 .. code :: shell
 
-    pylacrosse -d /dev/ttyUSB0 scan
+    # pylacrosse -d /dev/ttyUSB0 scan
     id=40 t=16.000000 h=69 nbat=0 name=Bedroom
     id=16 t=18.700000 h=60 nbat=0 name=Livingroom
     id=0 t=17.400000 h=65 nbat=0 name=Kitchen
