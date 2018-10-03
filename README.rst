@@ -1,8 +1,7 @@
 Pure Python Jeelink LaCrosse Library
 ====================================
 
-|BuildStatus| |PypiVersion| |Coveralls| |CodeClimate|
-
+|BuildStatus| |PypiVersion| |PyPiPythonVersions| |Coveralls| |CodeClimate|
 
 
 Requirements
@@ -11,7 +10,7 @@ Requirements
 This libray works with the `Jeelink`_ USB RF adapter and the arduino `sketch`_ hosted on the `FHEM`_ website.
 
 Tested Devices
--------------
+--------------
 * Technoline TX 29IT
 * Technoline TX 29DTH-IT
 
@@ -90,6 +89,9 @@ then the tool will print the defined names
                  :target: https://travis-ci.org/hthiery/python-lacrosse
 .. |PyPiVersion| image:: https://badge.fury.io/py/pylacrosse.svg
                  :target: http://badge.fury.io/py/pylacrosse
+.. |PyPiPythonVersions| image:: https://img.shields.io/pypi/pyversions/pylacrosse.svg
+                        :alt: Python versions
+                        :target: http://badge.fury.io/py/pylacrosse
 .. |CodeClimate| image:: https://api.codeclimate.com/v1/badges/fc83491ef0ae81080882/maintainability
                  :target: https://codeclimate.com/github/hthiery/python-lacrosse/maintainability
                  :alt: Maintainability
