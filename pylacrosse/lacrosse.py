@@ -19,7 +19,6 @@ from __future__ import unicode_literals
 import logging
 import re
 import threading
-from serial import Serial
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -55,7 +54,7 @@ class LaCrosse(object):
         self._port = port
         self._baud = baud
         self._timeout = timeout
-        self._serial = Serial()
+        self._serial = SerialPortFactory().create_serial_port(port)
         self._callback_data = None
 
     def open(self):
@@ -241,3 +240,13 @@ class LaCrosseSensor(object):
     def __repr__(self):
         return "id=%d t=%f h=%d nbat=%d" % \
             (self.sensorid, self.temperature, self.humidity, self.new_battery)
+
+
+class SerialPortFactory(object):
+    def create_serial_port(self, port):
+        if port.startswith("rfc2217://"):
+            from serial.rfc2217 import Serial
+            return Serial()
+        else:
+            from serial import Serial
+            return Serial()
