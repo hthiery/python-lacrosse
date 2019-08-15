@@ -31,6 +31,9 @@ Command Line Tool
       -h, --help            show this help message and exit
       -v                    be more verbose
       -d DEVICE, --device DEVICE
+                            set local device e.g. '/dev/ttyUSB0' or
+                            set remote device e.g. 'rfc2217://[IP]:[PORT]'
+                            default: '/dev/ttyUSB0'
       -f FREQUENCY_RFM1     set the frequency for RFM1
       -F FREQUENCY_RFM2     set the frequency for RFM2
       -t TOGGLE_INTERVAL_RFM1
@@ -80,6 +83,25 @@ then the tool will print the defined names
     id=16 t=18.700000 h=60 nbat=0 name=Livingroom
     id=0 t=17.400000 h=65 nbat=0 name=Kitchen
 
+Using remote serial port with ser2net
+-------------------------------------
+
+You can also use ser2net to connect to a remote JeeLink Adapter. This can be useful, if you use
+a docker container or if you can not attach a JeeLink adapter to your host running pylacrosse. On your
+remote device install ser2net and add the following line to your ser2net.conf:
+
+.. code :: shell
+
+    20001:telnet:0:/dev/ttyUSB0:57600 remctl banner
+
+Restart the ser2net daemon and connect to your remote host using pylacrosse command line tool:
+
+.. code :: shell
+
+    # pylacrosse -d rfc2217://[REMOTE_IP]]:20001 scan
+    id=40 t=16.000000 h=69 nbat=0 name=Bedroom
+    id=16 t=18.700000 h=60 nbat=0 name=Livingroom
+    id=0 t=17.400000 h=65 nbat=0 name=Kitchen
 
 .. _Jeelink: https://www.digitalsmarties.net/products/jeelink
 .. _sketch: https://svn.fhem.de/trac/browser/trunk/fhem/contrib/arduino/36_LaCrosse-LaCrosseITPlusReader.zip
