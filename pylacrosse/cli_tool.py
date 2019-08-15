@@ -19,7 +19,6 @@ import argparse
 import codecs
 import logging
 import os
-import pprint
 import time
 try:
     from ConfigParser import (SafeConfigParser, NoOptionError)
@@ -92,10 +91,13 @@ def led(lacrosse, config, args):
     lacrosse.led_config(state)
 
 def main(args=None):
-    parser = argparse.ArgumentParser('LaCrosse sensor CLI tool.')
+    parser = argparse.ArgumentParser('LaCrosse sensor CLI tool.', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-v', action='store_true', dest='verbose',
             help='be more verbose')
     parser.add_argument('-d', '--device', type=str, dest='device',
+            help='set local device e.g. \'{0}\' or\n'
+                 'set remote device e.g. \'rfc2217://[IP]:[PORT]\'\n'
+                 'default: \'{0}\''.format(DEFAULT_DEVICE),
             default=DEFAULT_DEVICE)
     parser.add_argument('-f', type=str, dest='frequency_rfm1',
             help='set the frequency for RFM1')
