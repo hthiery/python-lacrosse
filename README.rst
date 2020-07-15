@@ -63,7 +63,7 @@ Use the cli tool pylacrosse to find your device:
     id=16 t=18.700000 h=60 nbat=0 name=unknown
     id=0 t=17.400000 h=65 nbat=0 name=unknown
 
-You can generate a file with know devices at ~/.lacrosse/known_devices.ini
+You can generate a file with know devices at ~/.lacrosse/known_sensors.ini
 
 .. code :: shell
 
