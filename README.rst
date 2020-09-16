@@ -7,7 +7,7 @@ Pure Python Jeelink LaCrosse Library
 Requirements
 ------------
 
-This libray works with the `Jeelink`_ USB RF adapter and the arduino `sketch`_ hosted on the `FHEM`_ website.
+This library works with the `Jeelink`_ USB RF adapter and the Arduino `sketch`_ hosted on the `FHEM`_ website.
 
 Tested Devices
 --------------
@@ -54,7 +54,7 @@ Command Line Tool
 
 The LaCrosse sensor generates the ID every time the battery is changed.
 
-Use the cli tool pylacrosse to find your device:
+Use the cli tool ``pylacrosse`` to find your device:
 
 .. code :: shell
 
@@ -63,7 +63,7 @@ Use the cli tool pylacrosse to find your device:
     id=16 t=18.700000 h=60 nbat=0 name=unknown
     id=0 t=17.400000 h=65 nbat=0 name=unknown
 
-You can generate a file with know devices at ~/.lacrosse/known_sensors.ini
+You can generate a file with know devices at ``~/.lacrosse/known_sensors.ini``
 
 .. code :: shell
 
@@ -86,15 +86,15 @@ then the tool will print the defined names
 Using remote serial port with ser2net
 -------------------------------------
 
-You can also use ser2net to connect to a remote JeeLink Adapter. This can be useful, if you use
-a docker container or if you can not attach a JeeLink adapter to your host running pylacrosse. On your
-remote device install ser2net and add the following line to your ser2net.conf:
+You can also use ``ser2net`` to connect to a remote JeeLink Adapter. This can be useful, if you use
+a Docker container or if you can not attach a JeeLink adapter to your host running ``pylacrosse``. On your
+remote device install ``ser2net`` and add the following line to your ``ser2net.conf`` file:
 
 .. code :: shell
 
     20001:telnet:0:/dev/ttyUSB0:57600 remctl banner
 
-Restart the ser2net daemon and connect to your remote host using pylacrosse command line tool:
+Restart the ``ser2net`` daemon and connect to your remote host using ``pylacrosse`` command line tool:
 
 .. code :: shell
 
