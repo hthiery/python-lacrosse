@@ -33,7 +33,7 @@ setup(name = name,
         long_description = readme,
         author = 'Heiko Thiery',
         author_email = 'heiko.thiery@gmail.com',
-        packages = find_packages(),
+        packages = find_packages(exclude=('tests', 'tests.*')),
         url = 'http://github.com/hthiery/python-lacrosse',
         license = 'LGPLv2+',
         classifiers = [
