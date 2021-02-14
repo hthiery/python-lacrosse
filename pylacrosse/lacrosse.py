@@ -77,10 +77,11 @@ class LaCrosse(object):
         self._start_worker()
 
     def _write_cmd(self, cmd):
-        """Write a cmd."""
-        self._serial.write(cmd.encode())
         """ensure there is enough time between commands"""
         time.sleep(0.5)
+        """Write a cmd."""
+        self._serial.write(cmd.encode())
+
 
     @staticmethod
     def _parse_info(line):
