@@ -49,23 +49,31 @@ def scan_callback(sensor, config):
 
 def configure(lacrosse, config, args):
     if args.frequency_rfm1:
+        time.sleep(0.5)
         lacrosse.set_frequency(args.frequency_rfm1, 1)
     if args.frequency_rfm2:
+        time.sleep(0.5)
         lacrosse.set_frequency(args.frequency_rfm2, 2)
-
+        
     if args.datarate_rfm1:
+        time.sleep(0.5)
         lacrosse.set_datarate(args.datarate_rfm1, 1)
     if args.datarate_rfm2:
+        time.sleep(0.5)
         lacrosse.set_datarate(args.datarate_rfm1, 2)
-
+        
     if args.toggle_mask_rfm1:
+        time.sleep(0.5)
         lacrosse.set_toggle_mask(args.toggle_mask_rfm1, 1)
     if args.toggle_mask_rfm2:
+        time.sleep(0.5)
         lacrosse.set_toggle_mask(args.toggle_mask_rfm2, 2)
 
     if args.toggle_interval_rfm1:
+        time.sleep(0.5)
         lacrosse.set_toggle_interval(args.toggle_interval_rfm1, 1)
     if args.toggle_interval_rfm2:
+        time.sleep(0.5)
         lacrosse.set_toggle_interval(args.toggle_interval_rfm1, 2)
 
 
