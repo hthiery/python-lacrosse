@@ -19,6 +19,7 @@ from __future__ import unicode_literals
 import logging
 import re
 import threading
+import time
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -76,8 +77,11 @@ class LaCrosse(object):
         self._start_worker()
 
     def _write_cmd(self, cmd):
+        """ensure there is enough time between commands"""
+        time.sleep(0.5)
         """Write a cmd."""
         self._serial.write(cmd.encode())
+
 
     @staticmethod
     def _parse_info(line):
