@@ -23,7 +23,7 @@ import time
 try:
     from ConfigParser import (SafeConfigParser, NoOptionError)
 except ImportError:
-    from configparser import (SafeConfigParser, NoOptionError)
+    from configparser import (ConfigParser, NoOptionError)
 
 import pylacrosse
 
@@ -140,8 +140,8 @@ def main(args=None):
         _LOGGER.setLevel(logging.DEBUG)
 
     try:
-        config = SafeConfigParser()
-        config.readfp(codecs.open(os.path.expanduser(
+        config = ConfigParser()
+        config.read_file(codecs.open(os.path.expanduser(
                 '~/.lacrosse/known_sensors.ini'), 'r', 'UTF-8'))
     except IOError:
         config = None
