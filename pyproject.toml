@@ -1,0 +1,107 @@
+[build-system]
+requires = ["hatchling>=1.26", "hatch-vcs>=0.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pylacrosse"
+dynamic = ["version"]
+description = "LaCrosse sensor library"
+readme = "README.rst"
+requires-python = ">=3.11"
+license = "LGPL-2.1-or-later"
+authors = [{ name = "Heiko Thiery", email = "heiko.thiery@gmail.com" }]
+dependencies = [
+    "pyserial",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://github.com/hthiery/python-lacrosse"
+
+[project.scripts]
+pylacrosse = "pylacrosse.cli_tool:main"
+
+[dependency-groups]
+dev = [
+    "coverage>=7",
+    "pylint>=3",
+    "pytest>=8",
+    "ruff>=0.15,<0.16",
+    "zizmor>=1.32,<2",
+]
+release = [
+    "hatchling>=1.26",
+    "hatch-vcs>=0.4",
+    "pytest>=8",
+    "twine>=6",
+]
+
+[tool.hatch.version]
+source = "vcs"
+tag-pattern = "^(?P<version>\\d+\\.\\d+\\.\\d+)$"
+fallback-version = "0.0.0"
+
+[tool.hatch.version.raw-options]
+git_describe_command = "git describe --dirty --tags --long --match '[0-9]*.[0-9]*.[0-9]*'"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "pylacrosse/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pylacrosse"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/AUTHORS", "/COPYING", "/README.rst", "/pyproject.toml", "/pylacrosse"]
+exclude = ["/tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+extend-exclude = ["pylacrosse/version.py"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.ruff.format]
+line-ending = "lf"
+
+[tool.pylint.main]
+py-version = "3.11"
+
+[tool.pylint.messages_control]
+disable = [
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "protected-access",
+    "too-few-public-methods",
+    "consider-using-dict-items",
+    "consider-using-f-string",
+    "consider-using-with",
+    "no-else-return",
+    "simplifiable-if-expression",
+    "too-many-instance-attributes",
+    "unused-argument",
+    "use-list-literal",
+    "useless-import-alias",
+    "useless-object-inheritance",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["pylacrosse"]
+
+[tool.coverage.report]
+show_missing = true

@@ -15,10 +15,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-from __future__ import unicode_literals
 import logging
 import re
 import threading
+
+import serial
+from serial.rfc2217 import Serial as RFC2217Serial
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,8 +42,8 @@ _LOGGER = logging.getLogger(__name__)
        <n>y     if 1 all received packets will be retransmitted  (Relay mode)
 """
 
-class LaCrosse(object):
 
+class LaCrosse(object):
     sensors = {}
     _registry = {}
     _callback = None
@@ -87,46 +89,47 @@ class LaCrosse(object):
         - [LaCrosseITPlusReader.10.1s (RFM12B f:0 t:10~3)]
         """
         re_info = re.compile(
-            r'\[(?P<name>\w+).(?P<ver>.*) ' +
-            r'\((?P<rfm1name>\w+) (\w+):(?P<rfm1freq>\d+) ' +
-            r'(?P<rfm1mode>.*)\)\]')
+            r"\[(?P<name>\w+).(?P<ver>.*) "
+            + r"\((?P<rfm1name>\w+) (\w+):(?P<rfm1freq>\d+) "
+            + r"(?P<rfm1mode>.*)\)\]"
+        )
 
         info = {
-            'name': None,
-            'version': None,
-            'rfm1name': None,
-            'rfm1frequency': None,
-            'rfm1datarate': None,
-            'rfm1toggleinterval': None,
-            'rfm1togglemask': None,
+            "name": None,
+            "version": None,
+            "rfm1name": None,
+            "rfm1frequency": None,
+            "rfm1datarate": None,
+            "rfm1toggleinterval": None,
+            "rfm1togglemask": None,
         }
         match = re_info.match(line)
         if match:
-            info['name'] = match.group('name')
-            info['version'] = match.group('ver')
-            info['rfm1name'] = match.group('rfm1name')
-            info['rfm1frequency'] = match.group('rfm1freq')
-            values = match.group('rfm1mode').split(':')
-            if values[0] == 'r':
-                info['rfm1datarate'] = values[1]
-            elif values[0] == 't':
-                toggle = values[1].split('~')
-                info['rfm1toggleinterval'] = toggle[0]
-                info['rfm1togglemask'] = toggle[1]
+            info["name"] = match.group("name")
+            info["version"] = match.group("ver")
+            info["rfm1name"] = match.group("rfm1name")
+            info["rfm1frequency"] = match.group("rfm1freq")
+            values = match.group("rfm1mode").split(":")
+            if values[0] == "r":
+                info["rfm1datarate"] = values[1]
+            elif values[0] == "t":
+                toggle = values[1].split("~")
+                info["rfm1toggleinterval"] = toggle[0]
+                info["rfm1togglemask"] = toggle[1]
 
         return info
 
     def get_info(self):
         """Get current configuration info from 'v' command."""
-        re_info = re.compile(r'\[.*\]')
+        re_info = re.compile(r"\[.*\]")
 
-        self._write_cmd('v')
+        self._write_cmd("v")
         while True:
             line = self._serial.readline()
             try:
-                line = line.encode().decode('utf-8')
+                line = line.encode().decode("utf-8")
             except AttributeError:
-                line = line.decode('utf-8')
+                line = line.decode("utf-8")
 
             match = re_info.match(line)
             if match:
@@ -137,25 +140,25 @@ class LaCrosse(object):
 
         The LED state can be True or False.
         """
-        self._write_cmd('{}a'.format(int(state)))
+        self._write_cmd("{}a".format(int(state)))
 
     def set_frequency(self, frequency, rfm=1):
         """Set frequency in kHz.
 
         The frequency can be set in 5kHz steps.
         """
-        cmds = {1: 'f', 2: 'F'}
-        self._write_cmd('{}{}'.format(frequency, cmds[rfm]))
+        cmds = {1: "f", 2: "F"}
+        self._write_cmd("{}{}".format(frequency, cmds[rfm]))
 
     def set_datarate(self, rate, rfm=1):
         """Set datarate (baudrate)."""
-        cmds = {1: 'r', 2: 'R'}
-        self._write_cmd('{}{}'.format(rate, cmds[rfm]))
+        cmds = {1: "r", 2: "R"}
+        self._write_cmd("{}{}".format(rate, cmds[rfm]))
 
     def set_toggle_interval(self, interval, rfm=1):
         """Set the toggle interval."""
-        cmds = {1: 't', 2: 'T'}
-        self._write_cmd('{}{}'.format(interval, cmds[rfm]))
+        cmds = {1: "t", 2: "T"}
+        self._write_cmd("{}{}".format(interval, cmds[rfm]))
 
     def set_toggle_mask(self, mode_mask, rfm=1):
         """Set toggle baudrate mask.
@@ -166,8 +169,8 @@ class LaCrosse(object):
           4 : 8.842 kbps
         These values can be or'ed.
         """
-        cmds = {1: 'm', 2: 'M'}
-        self._write_cmd('{}{}'.format(mode_mask, cmds[rfm]))
+        cmds = {1: "m", 2: "M"}
+        self._write_cmd("{}{}".format(mode_mask, cmds[rfm]))
 
     def _start_worker(self):
         if self._thread is not None:
@@ -186,13 +189,13 @@ class LaCrosse(object):
     def _refresh(self):
         """Background refreshing thread."""
 
-        while not self._stopevent.isSet():
+        while not self._stopevent.is_set():
             line = self._serial.readline()
-            #this is for python2/python3 compatibility. Is there a better way?
+            # this is for python2/python3 compatibility. Is there a better way?
             try:
-                line = line.encode().decode('utf-8')
+                line = line.encode().decode("utf-8")
             except AttributeError:
-                line = line.decode('utf-8')
+                line = line.decode("utf-8")
 
             if LaCrosseSensor.re_reading.match(line):
                 sensor = LaCrosseSensor(line)
@@ -219,8 +222,9 @@ class LaCrosse(object):
 
 class LaCrosseSensor(object):
     """The LaCrosse Sensor class."""
+
     # OK 9 248 1 4 150 106
-    re_reading = re.compile(r'OK (\d+) (\d+) (\d+) (\d+) (\d+) (\d+)')
+    re_reading = re.compile(r"OK (\d+) (\d+) (\d+) (\d+) (\d+) (\d+)")
 
     def __init__(self, line=None):
         if line:
@@ -231,22 +235,24 @@ class LaCrosseSensor(object):
         if match:
             data = [int(c) for c in match.group().split()[1:]]
             self.sensorid = data[1]
-            self.sensortype = data[2] & 0x7f
+            self.sensortype = data[2] & 0x7F
             self.new_battery = True if data[2] & 0x80 else False
             self.temperature = float(data[3] * 256 + data[4] - 1000) / 10
-            self.humidity = data[5] & 0x7f
+            self.humidity = data[5] & 0x7F
             self.low_battery = True if data[5] & 0x80 else False
 
     def __repr__(self):
-        return "id=%d t=%f h=%d nbat=%d" % \
-            (self.sensorid, self.temperature, self.humidity, self.new_battery)
+        return "id=%d t=%f h=%d nbat=%d" % (
+            self.sensorid,
+            self.temperature,
+            self.humidity,
+            self.new_battery,
+        )
 
 
 class SerialPortFactory(object):
-    def create_serial_port(self, port):
+    def create_serial_port(self, port: str):
         if port.startswith("rfc2217://"):
-            from serial.rfc2217 import Serial
-            return Serial()
+            return RFC2217Serial()
         else:
-            from serial import Serial
-            return Serial()
+            return serial.Serial()

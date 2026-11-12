@@ -1,2 +1,7 @@
 *.pyc
+.coverage
 *.egg-info/
+.venv/
+.vscode/*
+pylacrosse/version.py
+dist/*

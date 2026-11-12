@@ -1,0 +1,202 @@
+name: Build and publish
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - '[0-9]*.[0-9]*.[0-9]*'
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+jobs:
+  build:
+    if: >-
+      github.repository == 'vipwolf/python-lacrosse' &&
+      github.event_name == 'push' && !github.event.deleted &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' ||
+       github.ref_type == 'tag')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      artifact-id: ${{ steps.artifact.outputs.artifact-id }}
+    env:
+      PYTHONNOUSERSITE: '1'
+      UV_PYTHON_DOWNLOADS: never
+      UV_NO_CACHE: '1'
+    steps:
+      - name: Check out the triggering commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate release policy
+        id: policy
+        run: bash .github/scripts/release-policy.sh
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.11'
+      - name: Set up uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: '0.13.7'
+          checksum: c5221ff41b7892bfc223543883600125f6a47fe845093e0f5bdff4f359196d83
+          enable-cache: false
+      - name: Sync locked release tools
+        run: |
+          export UV_PROJECT_ENVIRONMENT="$RUNNER_TEMP/release-venv"
+          uv sync --locked --no-default-groups --group release \
+            --no-install-project --no-build --python 3.11
+          echo "UV_PROJECT_ENVIRONMENT=$UV_PROJECT_ENVIRONMENT" >> "$GITHUB_ENV"
+          echo "$UV_PROJECT_ENVIRONMENT/bin" >> "$GITHUB_PATH"
+      - name: Build distributions
+        env:
+          EXPECTED_VERSION: ${{ steps.policy.outputs.version }}
+        run: |
+          unset SETUPTOOLS_SCM_PRETEND_VERSION SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PYLACROSSE
+          if [[ "$GITHUB_REF_TYPE" == branch ]]; then
+            export SETUPTOOLS_SCM_PRETEND_VERSION="$EXPECTED_VERSION"
+          fi
+          uv build --no-build-isolation --python "$UV_PROJECT_ENVIRONMENT/bin/python" \
+            --no-create-gitignore
+          python -m twine check --strict dist/*
+      - name: Verify distribution identities
+        env:
+          EXPECTED_VERSION: ${{ steps.policy.outputs.version }}
+        run: |
+          python - <<'PY'
+          import os
+          import tarfile
+          import zipfile
+          from email.parser import BytesParser
+          from pathlib import Path
+
+          version = os.environ["EXPECTED_VERSION"]
+          expected = {
+              f"pylacrosse-{version}.tar.gz",
+              f"pylacrosse-{version}-py3-none-any.whl",
+          }
+          distributions = list(Path("dist").iterdir())
+          if {path.name for path in distributions} != expected:
+              raise SystemExit("Unexpected distribution filenames")
+          for path in distributions:
+              if path.suffix == ".whl":
+                  with zipfile.ZipFile(path) as archive:
+                      members = [name for name in archive.namelist() if name.endswith(".dist-info/METADATA")]
+                      if len(members) != 1:
+                          raise SystemExit("Expected exactly one wheel metadata file")
+                      metadata = BytesParser().parsebytes(archive.read(members[0]))
+              else:
+                  with tarfile.open(path) as archive:
+                      member = archive.extractfile(f"pylacrosse-{version}/PKG-INFO")
+                      if member is None:
+                          raise SystemExit("Missing source distribution metadata")
+                      metadata = BytesParser().parsebytes(member.read())
+              if metadata["Name"] != "pylacrosse" or metadata["Version"] != version:
+                  raise SystemExit("Distribution name or version does not match the release")
+          PY
+      - name: Test the installed wheel outside the checkout
+        env:
+          EXPECTED_VERSION: ${{ steps.policy.outputs.version }}
+        run: |
+          uv pip install --python "$UV_PROJECT_ENVIRONMENT/bin/python" \
+            --no-deps --no-index dist/*.whl
+          test_root=$(mktemp -d "$RUNNER_TEMP/release-tests.XXXXXXXX")
+          cp -R tests "$test_root/tests"
+          mkdir -p "$test_root/.github"
+          cp -R .github/scripts "$test_root/.github/scripts"
+          cd "$test_root"
+          unset PYTHONPATH
+          python -m pytest --import-mode=importlib --rootdir "$test_root" tests
+          python -c 'import importlib.metadata, os, pylacrosse; assert importlib.metadata.version("pylacrosse") == os.environ["EXPECTED_VERSION"]'
+          pylacrosse --help
+      - name: Store verified distributions
+        id: artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: distributions-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-testpypi:
+    needs: build
+    if: >-
+      github.repository == 'vipwolf/python-lacrosse' &&
+      github.event_name == 'push' && !github.event.deleted &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/pylacrosse
+    permissions:
+      id-token: write
+    steps:
+      - name: Download this run's verified distributions
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+          path: dist
+          merge-multiple: true
+      - name: Publish to TestPyPI with attestations
+        uses: docker://ghcr.io/pypa/gh-action-pypi-publish@sha256:a20ee5e9a490ada64fce0c9176418a4fd5afad3b80e70fb4745803c1309dcdfc
+        env:
+          INPUT_USER: __token__
+          INPUT_PASSWORD: ''
+          INPUT_REPOSITORY_URL: https://test.pypi.org/legacy/
+          INPUT_PACKAGES_DIR: dist/
+          INPUT_VERIFY_METADATA: 'true'
+          INPUT_SKIP_EXISTING: 'false'
+          INPUT_VERBOSE: 'false'
+          INPUT_PRINT_HASH: 'true'
+          INPUT_ATTESTATIONS: 'true'
+          DEBUG: ''
+
+  publish-pypi:
+    needs: build
+    if: >-
+      github.repository == 'vipwolf/python-lacrosse' &&
+      github.event_name == 'push' && !github.event.deleted && github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pylacrosse
+    permissions:
+      id-token: write
+    steps:
+      - name: Download this run's verified distributions
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+          path: dist
+          merge-multiple: true
+      - name: Publish to PyPI with attestations
+        uses: docker://ghcr.io/pypa/gh-action-pypi-publish@sha256:a20ee5e9a490ada64fce0c9176418a4fd5afad3b80e70fb4745803c1309dcdfc
+        env:
+          INPUT_USER: __token__
+          INPUT_PASSWORD: ''
+          INPUT_REPOSITORY_URL: https://upload.pypi.org/legacy/
+          INPUT_PACKAGES_DIR: dist/
+          INPUT_VERIFY_METADATA: 'true'
+          INPUT_SKIP_EXISTING: 'false'
+          INPUT_VERBOSE: 'false'
+          INPUT_PRINT_HASH: 'true'
+          INPUT_ATTESTATIONS: 'true'
+          DEBUG: ''

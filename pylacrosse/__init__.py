@@ -15,4 +15,5 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-from .lacrosse import LaCrosse, LaCrosseSensor
+from .lacrosse import LaCrosse as LaCrosse
+from .lacrosse import LaCrosseSensor as LaCrosseSensor
